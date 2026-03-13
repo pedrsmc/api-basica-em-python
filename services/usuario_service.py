@@ -12,7 +12,6 @@ def listarUsuarios():
     usuarios = cursor.fetchall()
 
     conn.close()
-    os.system("bash backup_db.sh")
     return [dict(usuario) for usuario in usuarios]
       
 def cadastrarUsuario(usuario: UsuarioCreate):
@@ -30,7 +29,12 @@ def cadastrarUsuario(usuario: UsuarioCreate):
     usuario = cursor.fetchone()
     
     conn.close()
-    os.system("bash backup_db.sh")
+    
+    try:
+        os.system("bash backup_db.sh")
+    except:
+        pass
+
     return dict(usuario)
 
 def buscarUsuario(id: str):
@@ -45,7 +49,6 @@ def buscarUsuario(id: str):
         return None
 
     conn.close()
-    os.system("bash backup_db.sh")
     return dict(usuario)
 
 def atualizarUsuario(id: str, dados: dict):
@@ -73,10 +76,15 @@ def atualizarUsuario(id: str, dados: dict):
 
     cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
     novoUsuario = cursor.fetchone()
-    
     conn.commit()
+
     conn.close()
-    os.system("bash backup_db.sh")
+    
+    try:
+        os.system("bash backup_db.sh")
+    except:
+        pass
+
     return dict(novoUsuario)
 
 def deletarUsuario(id: str):
@@ -91,8 +99,13 @@ def deletarUsuario(id: str):
         return None
     
     cursor.execute("DELETE FROM Usuarios WHERE id = ?", (id,))
-   
     conn.commit()
+    
     conn.close()
-    os.system("bash backup_db.sh")
-    return usuario
+    
+    try:
+        os.system("bash backup_db.sh")
+    except:
+        pass
+    
+    return dict(usuario)
