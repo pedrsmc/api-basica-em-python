@@ -22,10 +22,13 @@ def cadastrarUsuario(usuario: UsuarioCreate):
         "INSERT INTO Usuarios (id, nome, email, tel, idade) VALUES (?, ?, ?, ?, ?)",
         (id, usuario.nome, usuario.email, usuario.tel, usuario.idade)
     )
-    
     conn.commit()
+
+    cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
+    usuario = cursor.fetchone()
+    
     conn.close()
-    return usuario
+    return dict(usuario)
 
 def buscarUsuario(id: str):
     conn = database.conectar()
@@ -34,12 +37,16 @@ def buscarUsuario(id: str):
     cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
     usuario = cursor.fetchone()
 
-    conn.close()
-    return usuario
+    if not usuario:
+        conn.close()
+        return None
 
-def atualizarUsuario(id: str, dados: UsuarioUpdate):
+    conn.close()
+    return dict(usuario)
+
+def atualizarUsuario(id: str, dados: dict):
     if not dados:
-        return HTTPException(status_code=400, detail="Nenhum campo enviado para atualização")
+        raise HTTPException(status_code=400, detail="Nenhum campo enviado para atualização")
 
     conn = database.conectar()
     cursor = conn.cursor()
@@ -47,6 +54,7 @@ def atualizarUsuario(id: str, dados: UsuarioUpdate):
     cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
     usuario = cursor.fetchone()
     if not usuario:
+        conn.close()
         return None
     
     nome = dados.get("nome", usuario["nome"])
@@ -64,7 +72,7 @@ def atualizarUsuario(id: str, dados: UsuarioUpdate):
     
     conn.commit()
     conn.close()
-    return novoUsuario
+    return dict(novoUsuario)
 
 def deletarUsuario(id: str):
     conn = database.conectar()

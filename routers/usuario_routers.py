@@ -40,7 +40,7 @@ def delete_usuario(id: str):
     return {"msg": "Usuário removido com sucesso."}
 
 @router.patch("/usuarios/{id}")
-def put_usuario(id: str, usuario: UsuarioUpdate):
+def patch_usuario(id: str, usuario: UsuarioUpdate):
     usuarioEncontrado = atualizarUsuario(id, usuario.dict(exclude_unset=True))
     
     if not usuarioEncontrado:
