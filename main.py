@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from routers import usuario_routers
-from database import database
 import uvicorn
+import os
 
 app = FastAPI()
 app.include_router(usuario_routers.router)
