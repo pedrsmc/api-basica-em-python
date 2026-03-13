@@ -1,7 +1,8 @@
-from models.usuario import UsuarioCreate, UsuarioUpdate
+from models.usuario import UsuarioCreate
 from database import database
 from fastapi import HTTPException
 import uuid
+import os
 
 def listarUsuarios():
     conn = database.conectar()
@@ -11,6 +12,7 @@ def listarUsuarios():
     usuarios = cursor.fetchall()
 
     conn.close()
+    os.system("bash backup_db.sh")
     return [dict(usuario) for usuario in usuarios]
       
 def cadastrarUsuario(usuario: UsuarioCreate):
@@ -28,6 +30,7 @@ def cadastrarUsuario(usuario: UsuarioCreate):
     usuario = cursor.fetchone()
     
     conn.close()
+    os.system("bash backup_db.sh")
     return dict(usuario)
 
 def buscarUsuario(id: str):
@@ -42,6 +45,7 @@ def buscarUsuario(id: str):
         return None
 
     conn.close()
+    os.system("bash backup_db.sh")
     return dict(usuario)
 
 def atualizarUsuario(id: str, dados: dict):
@@ -72,6 +76,7 @@ def atualizarUsuario(id: str, dados: dict):
     
     conn.commit()
     conn.close()
+    os.system("bash backup_db.sh")
     return dict(novoUsuario)
 
 def deletarUsuario(id: str):
@@ -89,4 +94,5 @@ def deletarUsuario(id: str):
    
     conn.commit()
     conn.close()
+    os.system("bash backup_db.sh")
     return usuario
