@@ -38,3 +38,7 @@ POST   /usuarios
 PUT    /usuarios/{id}
 DELETE /usuarios/{id}
 ```
+
+## Docs
+
+https://api-basica-em-python.onrender.com/docs
