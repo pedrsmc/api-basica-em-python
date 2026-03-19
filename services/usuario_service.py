@@ -1,12 +1,11 @@
 from models.usuario import UsuarioCreate
 from database import database
-from fastapi import HTTPException
+from psycopg2.extras import RealDictCursor
 import uuid
-import os
 
 def listarUsuarios():
     conn = database.conectar()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     cursor.execute("SELECT * FROM Usuarios")
     usuarios = cursor.fetchall()
@@ -17,49 +16,37 @@ def listarUsuarios():
 def cadastrarUsuario(usuario: UsuarioCreate):
     id = str(uuid.uuid4())
     conn = database.conectar()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     cursor.execute(
-        "INSERT INTO Usuarios (id, nome, email, tel, idade) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO Usuarios (id, nome, email, tel, idade) VALUES (%s, %s, %s, %s, %s)",
         (id, usuario.nome, usuario.email, usuario.tel, usuario.idade)
     )
     conn.commit()
 
-    cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
-    usuario = cursor.fetchone()
+    cursor.execute("SELECT * FROM Usuarios WHERE id = %s", (id,))
+    usuario_db = cursor.fetchone()
     
     conn.close()
-    
-    try:
-        os.system("bash backup_db.sh")
-    except:
-        pass
-
-    return dict(usuario)
+    return dict(usuario_db)
 
 def buscarUsuario(id: str):
     conn = database.conectar()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
+    cursor.execute("SELECT * FROM Usuarios WHERE id = %s", (id,))
     usuario = cursor.fetchone()
-
-    if not usuario:
-        conn.close()
-        return None
 
     conn.close()
-    return dict(usuario)
+    return dict(usuario) if usuario else None
 
 def atualizarUsuario(id: str, dados: dict):
-    if not dados:
-        raise HTTPException(status_code=400, detail="Nenhum campo enviado para atualização")
-
     conn = database.conectar()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
+    cursor.execute("SELECT * FROM Usuarios WHERE id = %s", (id,))
     usuario = cursor.fetchone()
+    
     if not usuario:
         conn.close()
         return None
@@ -70,42 +57,30 @@ def atualizarUsuario(id: str, dados: dict):
     idade = dados.get("idade", usuario["idade"])
 
     cursor.execute(
-        "UPDATE Usuarios SET nome = ?, email = ?, tel = ?, idade = ? WHERE id = ?",
+        "UPDATE Usuarios SET nome = %s, email = %s, tel = %s, idade = %s WHERE id = %s",
         (nome, email, tel, idade, id)
     )
-
-    cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
-    novoUsuario = cursor.fetchone()
     conn.commit()
 
-    conn.close()
-    
-    try:
-        os.system("bash backup_db.sh")
-    except:
-        pass
+    cursor.execute("SELECT * FROM Usuarios WHERE id = %s", (id,))
+    novoUsuario = cursor.fetchone()
 
+    conn.close()
     return dict(novoUsuario)
 
 def deletarUsuario(id: str):
     conn = database.conectar()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    cursor.execute("SELECT * FROM Usuarios WHERE id = ?", (id,))
+    cursor.execute("SELECT * FROM Usuarios WHERE id = %s", (id,))
     usuario = cursor.fetchone()
 
     if not usuario:
         conn.close()
         return None
     
-    cursor.execute("DELETE FROM Usuarios WHERE id = ?", (id,))
+    cursor.execute("DELETE FROM Usuarios WHERE id = %s", (id,))
     conn.commit()
-    
     conn.close()
-    
-    try:
-        os.system("bash backup_db.sh")
-    except:
-        pass
     
     return dict(usuario)

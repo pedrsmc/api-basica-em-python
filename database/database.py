@@ -1,12 +1,16 @@
-import sqlite3
+import psycopg2
+from dotenv import load_dotenv
+from psycopg2.extras import RealDictCursor
+import os
 
-DB = "database/database.db"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def conectar():
     try:
-        conn = sqlite3.connect(DB)
-        conn.row_factory = sqlite3.Row
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         return conn
-    
-    except sqlite3.Error as erro:
-        return print("Erro ao tentar se conectar ao banco: ", erro)
+    except Exception as erro:
+        print("Erro ao tentar se conectar ao banco: ", erro)
+        return None
