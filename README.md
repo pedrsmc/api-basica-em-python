@@ -6,7 +6,7 @@ API REST simples para gerenciamento de usuários feita com **FastAPI** e **SQLit
 
 * Python
 * FastAPI
-* SQLite
+* PostgreSQL
 * Uvicorn
 
 ## Executar localmente
