@@ -1,6 +1,6 @@
 # API de Usuários
 
-API REST simples para gerenciamento de usuários feita com **FastAPI** e **SQLite**.
+API REST simples para gerenciamento de usuários feita com **FastAPI** e **PostgreSQL**.
 
 ## Tecnologias
 
